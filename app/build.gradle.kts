@@ -36,8 +36,8 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.6")
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
