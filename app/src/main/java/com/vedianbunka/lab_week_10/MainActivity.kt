@@ -26,14 +26,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun prepareViewModel() {
-        // observe LiveData sekali
-        viewModel.total.observe(this, Observer { total ->
-            updateText(total)
+        // Observe the LiveData object
+        viewModel.total.observe(this, {
+            // Whenever the value of the LiveData object changes
+            // the updateText() is called, with the new value as the parameter
+            updateText(it)
         })
-
-        // set listener tombol sekali
         findViewById<Button>(R.id.button_increment).setOnClickListener {
             viewModel.incrementTotal()
         }
     }
+
 }
