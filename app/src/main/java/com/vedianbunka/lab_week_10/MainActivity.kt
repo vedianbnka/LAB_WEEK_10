@@ -3,13 +3,16 @@ package com.vedianbunka.lab_week_10
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.Observer
 import androidx.room.Room
 import com.vedianbunka.lab_week_10.database.Total
 import com.vedianbunka.lab_week_10.database.TotalDatabase
+import com.vedianbunka.lab_week_10.database.TotalObject
 import com.vedianbunka.lab_week_10.viewModels.TotalViewModel
+import java.util.Date
 
 class MainActivity : AppCompatActivity() {
     // Create an instance of the TotalDatabase
@@ -27,6 +30,11 @@ class MainActivity : AppCompatActivity() {
         prepareViewModel()
     }
 
+    override fun onStart(){
+        super.onStart()
+        // Update the text when the activity starts
+        Toast.makeText(this, db.totalDao().getTotal(1)[0].total.date, Toast.LENGTH_SHORT).show()
+    }
     private fun updateText(total: Int) {
         findViewById<TextView>(R.id.text_total).text =
             getString(R.string.text_total, total)
@@ -52,7 +60,7 @@ class MainActivity : AppCompatActivity() {
             applicationContext,
             TotalDatabase::class.java,
             "total-database"
-        ).allowMainThreadQueries().build()
+        ).allowMainThreadQueries().fallbackToDestructiveMigration().build()
     }
 
     // Initialize the value of the total from the database
@@ -61,9 +69,9 @@ class MainActivity : AppCompatActivity() {
     private fun initializeValueFromDatabase() {
         val total = db.totalDao().getTotal(ID)
         if (total.isEmpty()) {
-            db.totalDao().insert(Total(id = 1, total = 0))
+            db.totalDao().insert(Total(id = 1, total = TotalObject(0, Date().toString())))
         } else {
-            viewModel.setTotal(total.first().total)
+            viewModel.setTotal(total[0].total.value)
         }
     }
     // Update the value of the total in the database
@@ -72,7 +80,7 @@ class MainActivity : AppCompatActivity() {
     // even if the app is closed
     override fun onPause() {
         super.onPause()
-        db.totalDao().update(Total(ID, viewModel.total.value!!))
+        db.totalDao().update(Total(ID, TotalObject(viewModel.total.value ?: 0, Date().toString())))
     }
 
     // The ID of the Total object in the database
